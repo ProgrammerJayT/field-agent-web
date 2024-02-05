@@ -118,7 +118,11 @@ function SignIn() {
           warning: failedRequest(response).message,
         }));
       }
+
+      return;
     }
+
+    navigate("/");
   };
 
   const resetComponents = (settings) => {
