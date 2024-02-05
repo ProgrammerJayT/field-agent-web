@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
@@ -13,9 +13,26 @@ import validateEmail from "../../utils/exception/handlers/validateEmail";
 import validatePassword from "../../utils/exception/handlers/validatePassword";
 import { useNavigate } from "react-router-dom";
 import { login } from "../../services/server/auth/login";
+import { failedRequest } from "../../utils/exception/handlers/failedRequest";
 
 function SignIn() {
   const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    submitting: false,
+    submitted: false,
+    loading: false,
+    valid: false,
+    warning: "",
+  });
+
+  const components = useRef({
+    snackbar: {
+      open: false,
+      message: "",
+      type: "",
+    },
+  });
 
   const [email, setEmail] = useState({
     value: "",
@@ -27,13 +44,6 @@ function SignIn() {
     value: "",
     message: "",
     inValid: false,
-  });
-
-  const [form, setForm] = useState({
-    submitting: false,
-    submitted: false,
-    loading: false,
-    valid: false,
   });
 
   useEffect(() => {
@@ -49,6 +59,11 @@ function SignIn() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    setForm((prevForm) => ({
+      ...prevForm,
+      warning: "",
+    }));
+
     setEmail({
       ...email,
       message: validateEmail(email.value),
@@ -57,8 +72,8 @@ function SignIn() {
 
     setPassword({
       ...password,
-      message: validatePassword(password.value, "registration"),
-      inValid: validatePassword(password.value, "registration") ? true : false,
+      message: validatePassword(password.value, "login"),
+      inValid: validatePassword(password.value, "login") ? true : false,
     });
 
     if (!form.valid) {
@@ -75,33 +90,48 @@ function SignIn() {
       email: email.value,
       password: password.value,
     });
-    console.log("Login response", response);
-
-    if (response.code !== 200) {
-      setForm((prevForm) => ({
-        ...prevForm,
-        loading: false,
-        submitting: false,
-        submitted: true,
-      }));
-    }
-
-    console.log({
-      email,
-      password,
-    });
-  };
-
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
 
     setForm((prevForm) => ({
       ...prevForm,
+      loading: false,
       submitting: false,
-      submitted: false,
+      submitted: true,
     }));
+
+    console.log("Login response", response);
+
+    if (response.status !== 200) {
+      resetComponents({
+        open: true,
+        name: "snackbar",
+        type: "error",
+        message: failedRequest(response).message,
+      });
+
+      if (failedRequest(response).code !== 422) {
+        setTimeout(() => {
+          resetComponents({ name: "snackbar" });
+        }, 5000);
+      } else {
+        setForm((prevForm) => ({
+          ...prevForm,
+          warning: failedRequest(response).message,
+        }));
+      }
+    }
+  };
+
+  const resetComponents = (settings) => {
+    if (!components.current[settings.name]) {
+      console.log("Component not found");
+      return;
+    }
+
+    const component = components.current[settings.name];
+
+    component.message = settings.message || "";
+    component.open = settings.open || false;
+    component.type = settings.type || "";
   };
 
   return (
@@ -162,9 +192,25 @@ function SignIn() {
           <Box
             sx={{
               display: "flex",
+              flexDirection: "column",
               justifyContent: "center",
+              alignItems: "center",
             }}
           >
+            {form.warning.trim && (
+              <Typography
+                component="p"
+                sx={{
+                  color: "red",
+                  fontWeight: "bold",
+                  fontSize: 12,
+                  textAlign: "center",
+                }}
+              >
+                {form.warning}
+              </Typography>
+            )}
+
             <LoadingButton
               loading={form.loading}
               type="submit"
@@ -182,13 +228,9 @@ function SignIn() {
       <CopyrightComponent />
 
       <SnackbarComponent
-        open={form.submitting || form.submitted}
-        onClose={handleClose}
-        message={
-          form.submitting
-            ? "Submitting form..."
-            : "Form submitted successfully!"
-        }
+        open={components.current.snackbar.open}
+        message={components.current.snackbar.message}
+        type={components.current.snackbar.type}
       />
     </Container>
   );
