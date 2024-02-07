@@ -5,11 +5,8 @@ export const getLoggedInUser = async () => {
   try {
     const res = await axios.get(`${BASE_URL}/api/user`);
 
-    console.log("User res", res);
-
-    return res;
+    return res.data;
   } catch (error) {
-
     return error;
   }
 };
