@@ -2,17 +2,18 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "../views/auth/Login";
 import Home from "../views/Home";
+import { Container } from "@mui/material";
 
 const RouteStack = () => {
   return (
-    <>
+    <Container>
       <BrowserRouter>
         <Routes>
-          <Route exact path="/" element={<Home />} />
-          <Route exact path="/auth/login" element={<Login />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/auth/login" element={<Login />} />
         </Routes>
       </BrowserRouter>
-    </>
+    </Container>
   );
 };
 
