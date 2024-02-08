@@ -14,21 +14,18 @@ const Home = () => {
   const userQuery = useQuery({
     queryKey: ["user"],
     queryFn: () => getLoggedInUser(),
-    enabled: authChecked, // Only fetch when authChecked is true
+    enabled: authChecked,
   });
 
   const customersQuery = useQuery({
     queryKey: ["customers"],
     queryFn: () => getCustomers(),
-    enabled: userQuery.data?.user ? true : false,
+    enabled: userQuery.data ? true : false,
   });
-
-  console.log("Customers", customersQuery.data);
 
   useEffect(() => {
     const onCheckUser = async () => {
       const isUser = await checkUser();
-      console.log("Is user", isUser);
 
       if (!isUser) {
         setTimeout(() => {
