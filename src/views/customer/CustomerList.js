@@ -35,7 +35,7 @@ export default function CustomerList() {
           Customers
         </Typography>
 
-        <CustomersTableComponent customers={customers?.users} />
+        <CustomersTableComponent customers={customers} />
       </Grid>
 
       <Grid item xs={12} md={4} sx={{}}>
