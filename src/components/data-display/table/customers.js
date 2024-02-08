@@ -7,8 +7,12 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
+import { Box, Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export default function CustomersTableComponent({ customers }) {
+  const navigate = useNavigate();
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearchChange = (event) => {
@@ -28,8 +32,16 @@ export default function CustomersTableComponent({ customers }) {
 
   return (
     <TableContainer component={Paper}>
-      <div style={{ padding: 15 }}>
+      <Box
+        sx={{
+          display: "flex",
+          padding: 2,
+          marginBottom: 5,
+          whiteSpace: "nowrap",
+        }}
+      >
         <TextField
+          sx={{ marginRight: 1 }}
           label="Search"
           variant="outlined"
           size="small"
@@ -37,7 +49,18 @@ export default function CustomersTableComponent({ customers }) {
           value={searchQuery}
           onChange={handleSearchChange}
         />
-      </div>
+
+        <Button
+          sx={{ marginLeft: 1, paddingX: 3 }}
+          size="small"
+          variant="contained"
+          onClick={() => {
+            navigate("customers/create");
+          }}
+        >
+          New Customer
+        </Button>
+      </Box>
 
       <Table sx={{ minWidth: 650 }} aria-label="simple table" elevation={0}>
         <TableHead>
