@@ -5,6 +5,7 @@ import FullscreenLoader from "../components/FullscreenLoader";
 import { checkUser } from "../utils/middleware/checkUser";
 import { useNavigate } from "react-router-dom";
 import CustomerList from "./customer/CustomerList";
+import { getCustomers } from "../services/server/customers/getCustomers";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -15,6 +16,14 @@ const Home = () => {
     queryFn: () => getLoggedInUser(),
     enabled: authChecked, // Only fetch when authChecked is true
   });
+
+  const customersQuery = useQuery({
+    queryKey: ["customers"],
+    queryFn: () => getCustomers(),
+    enabled: userQuery.data?.user ? true : false,
+  });
+
+  console.log("Customers", customersQuery.data);
 
   useEffect(() => {
     const onCheckUser = async () => {
@@ -34,16 +43,14 @@ const Home = () => {
   }, [navigate]);
 
   if (userQuery.isError) {
-    // Error occurred while fetching user data
     return <div>Error fetching user data</div>;
   }
 
-  // User data successfully fetched, you can now access userQuery.data
-  // console.log("User response", userQuery.data);
-
   return (
     <div style={{}}>
-      {(!authChecked || userQuery.isLoading) && <FullscreenLoader />}
+      {(!authChecked || userQuery.isLoading || customersQuery.isLoading) && (
+        <FullscreenLoader />
+      )}
 
       <CustomerList />
     </div>
