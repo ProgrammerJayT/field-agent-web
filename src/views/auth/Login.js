@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../../services/server/auth/login";
 import { failedRequest } from "../../utils/exception/handlers/failedRequest";
 
-function SignIn() {
+export default function Login() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -26,12 +26,10 @@ function SignIn() {
     warning: "",
   });
 
-  const components = useRef({
-    snackbar: {
-      open: false,
-      message: "",
-      type: "",
-    },
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    type: "",
   });
 
   const [email, setEmail] = useState({
@@ -54,7 +52,7 @@ function SignIn() {
       ...prevForm,
       valid: isEmailValid && isPasswordValid,
     }));
-  }, [email, password, form]);
+  }, [email, password]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -83,7 +81,6 @@ function SignIn() {
     setForm((prevForm) => ({
       ...prevForm,
       loading: true,
-      submitting: true,
     }));
 
     const response = await login({
@@ -94,23 +91,24 @@ function SignIn() {
     setForm((prevForm) => ({
       ...prevForm,
       loading: false,
-      submitting: false,
-      submitted: true,
     }));
 
     console.log("Login response", response);
 
     if (response.status !== 200) {
-      resetComponents({
+      setSnackbar((prev) => ({
+        ...prev,
         open: true,
-        name: "snackbar",
         type: "error",
         message: failedRequest(response).message,
-      });
+      }));
 
       if (failedRequest(response).code !== 422) {
         setTimeout(() => {
-          resetComponents({ name: "snackbar" });
+          setSnackbar((prev) => ({
+            ...prev,
+            open: false,
+          }));
         }, 5000);
       } else {
         setForm((prevForm) => ({
@@ -123,19 +121,6 @@ function SignIn() {
     }
 
     navigate("/");
-  };
-
-  const resetComponents = (settings) => {
-    if (!components.current[settings.name]) {
-      console.log("Component not found");
-      return;
-    }
-
-    const component = components.current[settings.name];
-
-    component.message = settings.message || "";
-    component.open = settings.open || false;
-    component.type = settings.type || "";
   };
 
   return (
@@ -232,12 +217,10 @@ function SignIn() {
       <CopyrightComponent />
 
       <SnackbarComponent
-        open={components.current.snackbar.open}
-        message={components.current.snackbar.message}
-        type={components.current.snackbar.type}
+        open={snackbar.open}
+        message={snackbar.message}
+        type={snackbar.type}
       />
     </Container>
   );
 }
-
-export default SignIn;
