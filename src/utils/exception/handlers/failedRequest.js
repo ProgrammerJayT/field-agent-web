@@ -2,6 +2,8 @@ export const failedRequest = (error) => {
   let errorMessage = "An error occurred.";
   let statusCode = null;
 
+  console.log('Error:', error);
+
   if (error.response) {
     // The request was made and the server responded with a status code
     // that falls out of the range of 2xx
