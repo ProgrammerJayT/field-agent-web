@@ -104,9 +104,9 @@ export default function AppBarComponent() {
 
   return (
     <Box sx={{ width: "100vw" }}>
-      <AppBar position="relative">
+      <AppBar position="sticky">
         <Toolbar>
-          <IconButton
+          {/* <IconButton
             size="large"
             edge="start"
             color="inherit"
@@ -114,7 +114,8 @@ export default function AppBarComponent() {
             sx={{ mr: 2 }}
           >
             <MenuIcon />
-          </IconButton>
+          </IconButton> */}
+
           <Typography
             variant="h6"
             noWrap
