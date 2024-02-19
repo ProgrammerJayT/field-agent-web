@@ -77,7 +77,7 @@ const MapBoxGl = ({
   }, [geocoded, lat, lng, intention, onLocation]);
 
   useEffect(() => {
-    if (!loadingCustomers && customers.length > 0) {
+    if (!loadingCustomers && customers?.length > 0) {
       map.current.flyTo({
         center: [customers[0].longitude, customers[0].latitude],
         essential: true, // This animation is considered essential with respect to prefers-reduced-motion
