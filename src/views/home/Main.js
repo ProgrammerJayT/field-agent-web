@@ -23,13 +23,8 @@ const Home = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const {
-    userQuery,
-    customersQuery,
-    customersViewsQuery,
-    authChecked,
-    setAuthChecked,
-  } = useQueryContext();
+  const { userQuery, customersQuery, customersViewsQuery, setAuthChecked } =
+    useQueryContext();
 
   useEffect(() => {
     const onCheckUser = async () => {
@@ -41,7 +36,7 @@ const Home = () => {
         }, 5000);
       }
 
-      setAuthChecked(true);
+      setAuthChecked(isUser);
     };
 
     onCheckUser();

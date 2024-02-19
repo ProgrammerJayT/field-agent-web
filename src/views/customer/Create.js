@@ -19,8 +19,11 @@ import Form from "../../components/forms/customers/CreateUpdateFormComponent";
 import { stringAvatar } from "../../utils/ui/stringAvatar";
 import { Person } from "@mui/icons-material";
 import Map from "../../components/maps/MapBoxGl";
+import { useQueryContext } from "../../utils/context/QueryContext";
 
 export default function CustomerCreate() {
+  const { newCustomerMutation } = useQueryContext();
+
   const theme = useTheme();
 
   const [snackbar, setSnackbar] = useState({
@@ -41,38 +44,6 @@ export default function CustomerCreate() {
 
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const queryClient = useQueryClient();
-
-  const newCustomerMutation = useMutation({
-    mutationFn: createCustomer,
-    onSuccess: (data) => {
-      if (data.status === 201) {
-        queryClient.invalidateQueries(["customers"]);
-        setIsSuccess(true);
-        console.log("Success", data);
-      }
-
-      setSnackbar((prev) => ({
-        ...prev,
-        open: true,
-        message:
-          data.status === 201
-            ? "Customer created successfully"
-            : failedRequest(data).message,
-        type: data.status === 201 ? "success" : "error",
-      }));
-
-      setTimeout(() => {
-        setSnackbar((prev) => ({
-          ...prev,
-          open: false,
-          message: "",
-          type: "",
-        }));
-      }, 3000);
-    },
-  });
-
   const onLocation = (location) => {
     if (location) {
       setLocation({
@@ -85,7 +56,7 @@ export default function CustomerCreate() {
   const onCreateCustomer = async (data) => {
     setLoading({ ...loading, form: true });
 
-    await newCustomerMutation.mutateAsync({
+    const response = await newCustomerMutation.mutateAsync({
       name: data.name,
       surname: data.surname,
       email: data.email,
@@ -95,6 +66,37 @@ export default function CustomerCreate() {
     });
 
     setLoading({ ...loading, form: false });
+
+    const responseObject = {
+      message: "",
+      type: "",
+    };
+
+    if (response.token) {
+      responseObject.message = "Customer created successfully";
+      responseObject.type = "success";
+      setIsSuccess(true);
+    } else {
+      //
+      responseObject.message = failedRequest(response).message;
+      responseObject.type = "error";
+    }
+
+    setSnackbar((prev) => ({
+      ...prev,
+      open: true,
+      message: responseObject.message,
+      type: responseObject.type,
+    }));
+
+    setTimeout(() => {
+      setSnackbar((prev) => ({
+        ...prev,
+        open: false,
+        message: "",
+        type: "",
+      }));
+    }, 3000);
   };
 
   const onMapLoaded = () => {

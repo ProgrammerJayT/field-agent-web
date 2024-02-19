@@ -6,30 +6,23 @@ import { stringAvatar } from "../../utils/ui/stringAvatar";
 import Form from "../../components/forms/customers/CreateUpdateFormComponent";
 import _ from "lodash";
 import { Grid, Paper, Typography } from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getCustomer } from "../../services/server/customers/getCustomer";
-import { viewCustomer } from "../../services/server/customers/viewCustomer";
 import { Edit } from "@mui/icons-material";
 import Map from "../../components/maps/MapBoxGl";
 import SnackbarComponent from "../../components/feedback/SnackbarComponent";
 import { useQueryContext } from "../../utils/context/QueryContext";
+import { failedRequest } from "../../utils/exception/handlers/failedRequest";
 
 const One = () => {
-  const { useCustomerQuery, invalidateCustomersViewsQuery } = useQueryContext();
+  const { useCustomerQuery, customerViewMutation, updateCustomerMutation } =
+    useQueryContext();
+
+  useEffect(() => {
+    customerViewMutation.mutate(id);
+  }, []);
 
   const { id } = useParams();
 
   const customerQuery = useCustomerQuery(id);
-
-  if (customerQuery.data) console.log("Data", customerQuery.data);
-
-  const customerViewMutation = useMutation({
-    mutationFn: viewCustomer,
-    onSuccess: (data) => {
-      const views = data.data.views;
-      invalidateCustomersViewsQuery(views);
-    },
-  });
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -37,43 +30,68 @@ const One = () => {
     type: "",
   });
 
+  const [loading, setLoading] = useState({
+    map: true,
+    form: false,
+  });
+
   const [isEditing, setIsEditing] = useState(false);
 
   const theme = useTheme();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    customerViewMutation.mutateAsync(id);
-  }, []);
-
-  const onUpdateCustomer = (customer) => {
+  const onUpdateCustomer = async (customer) => {
     const newDetails = customer.new;
     const currentDetails = customer.current;
 
+    const responseObject = {
+      message: "",
+      type: "",
+    };
+
     if (_.isEqual(newDetails, currentDetails)) {
+      responseObject.message =
+        "No changes were made, therefore there's nothing to update";
+      responseObject.type = "error";
+    } else {
+      setLoading({ ...loading, form: true });
+      const response = await updateCustomerMutation.mutateAsync(newDetails);
+      setLoading({ ...loading, form: false });
+
+      if (response.customer) {
+        responseObject.message = "Customer details successfully updated";
+        responseObject.type = "success";
+        setIsEditing(false);
+      } else {
+        //
+        responseObject.message = failedRequest(response).message;
+        responseObject.type = "error";
+      }
+    }
+
+    setSnackbar((prev) => ({
+      ...prev,
+      open: true,
+      message: responseObject.message,
+      type: responseObject.type,
+    }));
+
+    setTimeout(() => {
       setSnackbar((prev) => ({
         ...prev,
-        open: true,
-        message: "No changes were made, therefore there's nothing to update",
-        type: "error",
+        open: false,
+        message: "",
+        type: "",
       }));
+    }, 3000);
+  };
 
-      setTimeout(() => {
-        setSnackbar((prev) => ({
-          ...prev,
-          open: false,
-          message: "",
-          type: "",
-        }));
-      }, 3000);
-
-      return;
-    }
+  const onMapLoaded = () => {
+    setLoading({ ...loading, map: false });
   };
 
   return (
     <>
-      {useCustomerQuery(id).isLoading && <FullscreenLoader />}
+      {useCustomerQuery(id).isLoading && loading.map && <FullscreenLoader />}
 
       <Grid container spacing={2}>
         <Grid
@@ -110,11 +128,7 @@ const One = () => {
               />
 
               <Box sx={{ p: 1 }}>
-                <Typography
-                  sx={{ textAlign: "center" }}
-                  variant="h6"
-                  component="div"
-                >
+                <Typography variant="h6" component="div">
                   {customerQuery.data?.name ?? ""}{" "}
                   {customerQuery.data?.surname ?? ""}
                 </Typography>
@@ -149,6 +163,7 @@ const One = () => {
               latitude: customerQuery.data?.latitude ?? 0.0,
             }}
             intention={"edit"}
+            loading={loading.form}
             customer={customerQuery.data}
             isEditing={isEditing}
             onSubmit={onUpdateCustomer}
@@ -157,9 +172,7 @@ const One = () => {
 
         <Grid item xs={12} md={9}>
           <Map
-            onMapLoaded={() => {
-              return;
-            }}
+            onMapLoaded={onMapLoaded}
             onLocation={() => {
               return;
             }}
