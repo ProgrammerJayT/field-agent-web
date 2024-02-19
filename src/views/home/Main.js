@@ -17,29 +17,19 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+import { useQueryContext } from "../../utils/context/QueryContext";
 
 const Home = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [authChecked, setAuthChecked] = useState(false);
 
-  const userQuery = useQuery({
-    queryKey: ["user"],
-    queryFn: () => getLoggedInUser(),
-    enabled: authChecked,
-  });
-
-  const customersQuery = useQuery({
-    queryKey: ["customers"],
-    queryFn: () => getCustomers(),
-    enabled: userQuery.data ? true : false,
-  });
-
-  const customersViewsQuery = useQuery({
-    queryKey: ["customersViews"],
-    queryFn: () => getCustomersViews(),
-    enabled: authChecked,
-  });
+  const {
+    userQuery,
+    customersQuery,
+    customersViewsQuery,
+    authChecked,
+    setAuthChecked,
+  } = useQueryContext();
 
   useEffect(() => {
     const onCheckUser = async () => {
@@ -65,46 +55,52 @@ const Home = () => {
 
   return (
     <>
-      {(!authChecked ||
-        userQuery.isLoading ||
-        customersQuery.isLoading ||
-        customersViewsQuery.isLoading) && <FullscreenLoader />}
+      {!userQuery.data || !customersQuery.data || !customersViewsQuery.data ? (
+        <FullscreenLoader />
+      ) : (
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={3} sx={{}}>
+            <Typography
+              sx={{ textAlign: "center" }}
+              variant="h6"
+              component="div"
+            >
+              Recently viewed
+            </Typography>
 
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={3} sx={{}}>
-          <Typography sx={{ textAlign: "center" }} variant="h6" component="div">
-            Recently viewed
-          </Typography>
-
-          <Paper
-            elevation={10}
-            sx={{ backgroundColor: theme.palette.primary.main, color: "white" }}
-          >
-            <List>
-              {customersViewsQuery.data &&
-              customersViewsQuery.data.length > 0 ? (
-                customersViewsQuery.data.map((view, index) => (
-                  <ListItem key={view.customer.id}>
-                    <ListItemText
-                      primary={`${index + 1}. ${view.customer.name} ${
-                        view.customer.surname
-                      }`}
-                    />
+            <Paper
+              elevation={10}
+              sx={{
+                backgroundColor: theme.palette.primary.main,
+                color: "white",
+              }}
+            >
+              <List>
+                {customersViewsQuery.data &&
+                customersViewsQuery.data.length > 0 ? (
+                  customersViewsQuery.data.map((view, index) => (
+                    <ListItem key={view.customer.id}>
+                      <ListItemText
+                        primary={`${index + 1}. ${view.customer.name} ${
+                          view.customer.surname
+                        }`}
+                      />
+                    </ListItem>
+                  ))
+                ) : (
+                  <ListItem>
+                    <ListItemText primary="No views yet" />
                   </ListItem>
-                ))
-              ) : (
-                <ListItem>
-                  <ListItemText primary="No views yet" />
-                </ListItem>
-              )}
-            </List>
-          </Paper>
-        </Grid>
+                )}
+              </List>
+            </Paper>
+          </Grid>
 
-        <Grid item xs={12} md={9}>
-          <Customers />
+          <Grid item xs={12} md={9}>
+            <Customers />
+          </Grid>
         </Grid>
-      </Grid>
+      )}
     </>
   );
 };
