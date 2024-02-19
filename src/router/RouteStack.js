@@ -22,7 +22,9 @@ const RouteStack = () => {
       const isUser = await checkUser();
 
       if (!isUser) {
-        setTimeout(() => {
+        console.log("Fale");
+
+        return setTimeout(() => {
           navigate("/auth/login");
         }, 5000);
       }
@@ -33,7 +35,7 @@ const RouteStack = () => {
     onCheckUser();
   }, [navigate, setAuthChecked]);
 
-  return authChecked ? (
+  return (
     <div style={{ paddingLeft: 30, paddingRight: 30 }}>
       <BreadcrumbsComponent />
 
@@ -45,8 +47,6 @@ const RouteStack = () => {
         <Route path="/customers/:id" element={<CustomerViewPage />} />
       </Routes>
     </div>
-  ) : (
-    <FullscreenLoader />
   );
 };
 
