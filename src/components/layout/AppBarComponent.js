@@ -15,7 +15,7 @@ import MoreIcon from "@mui/icons-material/MoreVert";
 import { useQueryContext } from "../../utils/context/QueryContext";
 
 const AppBarComponent = () => {
-  const { userQuery } = useQueryContext();
+  const { userQuery, authChecked } = useQueryContext();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -96,10 +96,11 @@ const AppBarComponent = () => {
   );
 
   return (
-    <Box sx={{ width: "100vw" }}>
-      <AppBar position="sticky">
-        <Toolbar>
-          {/* <IconButton
+    authChecked && (
+      <Box sx={{ width: "100vw" }}>
+        <AppBar position="sticky">
+          <Toolbar>
+            {/* <IconButton
             size="large"
             edge="start"
             color="inherit"
@@ -109,58 +110,59 @@ const AppBarComponent = () => {
             <MenuIcon />
           </IconButton> */}
 
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ display: { xs: "none", sm: "block" } }}
-          >
-            Zuse Technologies - Field Agent
-          </Typography>
-
-          <Box sx={{ flexGrow: 1 }} />
-
-          <Box
-            sx={{
-              display: { xs: "none", md: "flex" },
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Typography sx={{ paddingX: 1 }}>
-              {userQuery.data?.user?.name} {userQuery.data?.user?.surname}
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{ display: { xs: "none", sm: "block" } }}
+            >
+              Zuse Technologies - Field Agent
             </Typography>
 
-            <IconButton
-              size="large"
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
-          </Box>
+            <Box sx={{ flexGrow: 1 }} />
 
-          <Box sx={{ display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
+            <Box
+              sx={{
+                display: { xs: "none", md: "flex" },
+                justifyContent: "center",
+                alignItems: "center",
+              }}
             >
-              <MoreIcon />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      {renderMobileMenu}
-      {renderMenu}
-    </Box>
+              <Typography sx={{ paddingX: 1 }}>
+                {userQuery.data?.user?.name} {userQuery.data?.user?.surname}
+              </Typography>
+
+              {/* <IconButton
+                size="large"
+                edge="end"
+                aria-label="account of current user"
+                aria-controls={menuId}
+                aria-haspopup="true"
+                onClick={handleProfileMenuOpen}
+                color="inherit"
+              >
+                <AccountCircle />
+              </IconButton> */}
+            </Box>
+
+            <Box sx={{ display: { xs: "flex", md: "none" } }}>
+              {/* <IconButton
+                size="large"
+                aria-label="show more"
+                aria-controls={mobileMenuId}
+                aria-haspopup="true"
+                onClick={handleMobileMenuOpen}
+                color="inherit"
+              >
+                <MoreIcon />
+              </IconButton> */}
+            </Box>
+          </Toolbar>
+        </AppBar>
+        {renderMobileMenu}
+        {renderMenu}
+      </Box>
+    )
   );
 };
 
