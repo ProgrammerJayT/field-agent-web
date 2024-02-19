@@ -14,13 +14,12 @@ const App = () => {
     <ThemeProvider theme={defaultTheme}>
       <main>
         <CssBaseline />
-        <AppBarComponent />
-
-        <BrowserRouter>
-          <QueryProvider>
+        <QueryProvider>
+          <AppBarComponent />
+          <BrowserRouter>
             <RouteStack />
-          </QueryProvider>
-        </BrowserRouter>
+          </BrowserRouter>
+        </QueryProvider>
       </main>
     </ThemeProvider>
   );
