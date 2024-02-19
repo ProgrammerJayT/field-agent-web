@@ -51,23 +51,38 @@ const CreateUpdateFormComponent = ({
       setName({ ...name, value: "" });
       setSurname({ ...surname, value: "" });
       setEmail({ ...email, value: "" });
+
+      onCleared();
     }
-    onCleared();
   }, [isSuccess, name, surname, email, onCleared]);
 
   const handleSubmit = () => {
-    onSubmit({
-      current: customer,
-      new: {
-        id: customer.id,
-        role: customer.role,
+    let data = null;
+
+    if (intention === "edit") {
+      data = {
+        current: customer,
+        new: {
+          id: customer.id,
+          role: customer.role,
+          name: name.value,
+          surname: surname.value,
+          email: email.value,
+          latitude: location.latitude,
+          longitude: location.longitude,
+        },
+      };
+    } else {
+      data = {
         name: name.value,
         surname: surname.value,
         email: email.value,
         latitude: location.latitude,
         longitude: location.longitude,
-      },
-    });
+      };
+    }
+
+    onSubmit(data);
   };
 
   useEffect(() => {
@@ -98,7 +113,7 @@ const CreateUpdateFormComponent = ({
           variant="outlined"
           size="small"
           fullWidth
-          disabled={loading || (intention === "edit" ? !isEditing : true)}
+          disabled={loading || (intention === "edit" ? !isEditing : false)}
           value={name.value}
           onChange={(e) => setName({ ...name, value: e.target.value })}
         />
@@ -111,7 +126,7 @@ const CreateUpdateFormComponent = ({
           variant="outlined"
           size="small"
           fullWidth
-          disabled={loading || (intention === "edit" ? !isEditing : true)}
+          disabled={loading || (intention === "edit" ? !isEditing : false)}
           value={surname.value}
           onChange={(e) => setSurname({ ...name, value: e.target.value })}
         />
@@ -124,7 +139,7 @@ const CreateUpdateFormComponent = ({
           variant="outlined"
           size="small"
           fullWidth
-          disabled={loading || (intention === "edit" ? !isEditing : true)}
+          disabled={loading || (intention === "edit" ? !isEditing : false)}
           value={email.value}
           onChange={(e) => setEmail({ ...email, value: e.target.value })}
         />
@@ -154,7 +169,9 @@ const CreateUpdateFormComponent = ({
             variant="contained"
             sx={{ marginLeft: 1, paddingX: 3 }}
             size="small"
-            disabled={!form.valid || (intention === "edit" ? !isEditing : true)}
+            disabled={
+              !form.valid || (intention === "edit" ? !isEditing : false)
+            }
             onClick={handleSubmit}
           >
             Submit
