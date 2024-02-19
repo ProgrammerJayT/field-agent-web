@@ -5,7 +5,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import RouteStack from "./router/RouteStack";
 import AppBarComponent from "./components/layout/AppBarComponent";
 import { BrowserRouter } from "react-router-dom";
-import { QueryProvider } from "./utils/context/QueryContext";
 
 const defaultTheme = createTheme();
 
@@ -14,12 +13,10 @@ const App = () => {
     <ThemeProvider theme={defaultTheme}>
       <main>
         <CssBaseline />
-        <QueryProvider>
-          <AppBarComponent />
-          <BrowserRouter>
-            <RouteStack />
-          </BrowserRouter>
-        </QueryProvider>
+        <AppBarComponent />
+        <BrowserRouter>
+          <RouteStack />
+        </BrowserRouter>
       </main>
     </ThemeProvider>
   );
