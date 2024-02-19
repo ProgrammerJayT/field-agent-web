@@ -1,21 +1,52 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "../views/auth/Login";
-import Home from "../views/Home";
+import React, { useContext, useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
+import LoginPage from "../views/auth/Login";
+import HomePage from "../views/home/Main";
 import { Container } from "@mui/material";
-import CustomerCreate from "../views/customer/CustomerCreate";
+import CustomerCreatePage from "../views/customer/Create";
+import CustomersListPage from "../views/customer/Main";
+import CustomerViewPage from "../views/customer/One";
+import BreadcrumbsComponent from "../components/navigation/BreadcrumbsComponent";
+import { useLocation } from "react-router-dom";
+import { useQueryContext } from "../utils/context/QueryContext";
+import { checkUser } from "../utils/middleware/checkUser";
+import { useNavigate } from "react-router-dom";
+import FullscreenLoader from "../components/FullscreenLoader";
 
 const RouteStack = () => {
-  return (
-    <Container sx={{marginTop:4}}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/auth/login" element={<Login />} />
-          <Route path="/customers/create" element={<CustomerCreate />} />
-        </Routes>
-      </BrowserRouter>
-    </Container>
+  const { setAuthChecked, authChecked } = useQueryContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const onCheckUser = async () => {
+      const isUser = await checkUser();
+
+      if (!isUser) {
+        setTimeout(() => {
+          navigate("/auth/login");
+        }, 5000);
+      }
+
+      setAuthChecked(true);
+    };
+
+    onCheckUser();
+  }, [navigate, setAuthChecked]);
+
+  return authChecked ? (
+    <div style={{ paddingLeft: 30, paddingRight: 30 }}>
+      <BreadcrumbsComponent />
+
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/auth/login" element={<LoginPage />} />
+        <Route path="/customers" element={<CustomersListPage />} />
+        <Route path="/customers/create" element={<CustomerCreatePage />} />
+        <Route path="/customers/:id" element={<CustomerViewPage />} />
+      </Routes>
+    </div>
+  ) : (
+    <FullscreenLoader />
   );
 };
 

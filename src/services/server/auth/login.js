@@ -10,11 +10,9 @@ export const login = async (credentials) => {
     });
 
     if (res?.status === 200) {
-      headers();
       localStorage.setItem("token", res.data.token);
+      headers();
     }
-
-    console.log("Login res", res);
 
     return res;
   } catch (error) {

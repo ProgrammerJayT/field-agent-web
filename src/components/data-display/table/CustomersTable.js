@@ -7,8 +7,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
-import { Box, Button } from "@mui/material";
+import { Box, Button, IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 export default function CustomersTableComponent({ customers }) {
   const navigate = useNavigate();
@@ -31,12 +32,11 @@ export default function CustomersTableComponent({ customers }) {
     : [];
 
   return (
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} sx={{ mb: 10 }}>
       <Box
         sx={{
           display: "flex",
           padding: 2,
-          marginBottom: 5,
           whiteSpace: "nowrap",
         }}
       >
@@ -53,43 +53,64 @@ export default function CustomersTableComponent({ customers }) {
         <Button
           sx={{ marginLeft: 1, paddingX: 3 }}
           size="small"
+          variant="outlined"
+          onClick={() => {
+            navigate("customers");
+          }}
+        >
+          View All{" "}
+        </Button>
+
+        <Button
+          sx={{ marginLeft: 1, paddingX: 3 }}
+          size="small"
           variant="contained"
           onClick={() => {
             navigate("customers/create");
           }}
         >
-          New Customer
+          Create New
         </Button>
       </Box>
 
-      <Table sx={{ minWidth: 650 }} aria-label="simple table" elevation={0}>
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Surname</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Address</TableCell>
-            <TableCell>GPS coords</TableCell>
-          </TableRow>
-        </TableHead>
-
-        <TableBody>
-          {filteredRows.map((row) => (
-            <TableRow
-              key={row.id} // Assuming each customer has an id
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {row.name}
-              </TableCell>
-              <TableCell>{row.surname}</TableCell>
-              <TableCell>{row.email}</TableCell>
-              <TableCell>{`${row.address ?? "No address"}`}</TableCell>
-              <TableCell>{`${row.latitude},${row.longitude}`}</TableCell>
+      <TableContainer sx={{ maxHeight: 400 }}>
+        <Table stickyHeader aria-label="sticky table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>GPS coords</TableCell>
+              <TableCell></TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+
+          <TableBody>
+            {filteredRows.map((row) => (
+              <TableRow
+                key={row.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {row.name} {row.surname}
+                </TableCell>
+                <TableCell>{row.email}</TableCell>
+                <TableCell>{`${row.latitude},${row.longitude}`}</TableCell>
+                <TableCell>
+                  <IconButton
+                    color="primary"
+                    aria-label="View customer"
+                    onClick={() => {
+                      navigate(`customers/${row.id}`);
+                    }}
+                  >
+                    <OpenInNewIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </TableContainer>
   );
 }
