@@ -1,18 +1,18 @@
-import React, { useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useQueryContext } from "../../utils/context/QueryContext";
 
 export default function BreadcrumbsComponent() {
+  const { authChecked } = useQueryContext();
+
   const path = useLocation().pathname;
   const navigate = useNavigate();
   const heading = useRef("");
   const crumbs = useRef([]);
-
-  const queryClient = useQueryClient();
 
   switch (true) {
     case path === "/":
@@ -34,6 +34,20 @@ export default function BreadcrumbsComponent() {
         {
           title: "Create",
           path: path,
+        },
+      ];
+      break;
+
+    case path === "/customers":
+      heading.current = "Customers map";
+      crumbs.current = [
+        {
+          title: "Home",
+          path: "/",
+        },
+        {
+          title: "Customers",
+          path: "/customers",
         },
       ];
       break;
@@ -72,38 +86,40 @@ export default function BreadcrumbsComponent() {
   }
 
   return (
-    <Stack
-      spacing={2}
-      direction={"row"}
-      sx={{
-        alignItems: "center",
-        my: 5,
-        justifyContent: "space-between",
-      }}
-    >
-      <Breadcrumbs separator="›" aria-label="breadcrumb">
-        {crumbs.current.map((crumb, index) =>
-          index === crumbs.current.length - 1 ? (
-            <Typography key={index} color="text.primary">
-              {crumb.title}
-            </Typography>
-          ) : (
-            <Link
-              underline={`${crumb.disabled ? "none" : "hover"}`}
-              key={index}
-              color="inherit"
-              href={crumb.path}
-              onClick={(event) => handleClick(event, crumb.path)}
-            >
-              {crumb.title}
-            </Link>
-          )
-        )}
-      </Breadcrumbs>
+    authChecked && (
+      <Stack
+        spacing={2}
+        direction={"row"}
+        sx={{
+          alignItems: "center",
+          my: 5,
+          justifyContent: "space-between",
+        }}
+      >
+        <Breadcrumbs separator="›" aria-label="breadcrumb">
+          {crumbs.current.map((crumb, index) =>
+            index === crumbs.current.length - 1 ? (
+              <Typography key={index} color="text.primary">
+                {crumb.title}
+              </Typography>
+            ) : (
+              <Link
+                underline={`${crumb.disabled ? "none" : "hover"}`}
+                key={index}
+                color="inherit"
+                href={crumb.path}
+                onClick={(event) => handleClick(event, crumb.path)}
+              >
+                {crumb.title}
+              </Link>
+            )
+          )}
+        </Breadcrumbs>
 
-      <Typography variant="h6" component="div" sx={{}}>
-        {heading.current}
-      </Typography>
-    </Stack>
+        <Typography variant="h6" component="div" sx={{}}>
+          {heading.current}
+        </Typography>
+      </Stack>
+    )
   );
 }
