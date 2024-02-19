@@ -1,5 +1,4 @@
 import * as React from "react";
-import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -13,16 +12,10 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
-import { useQuery } from "@tanstack/react-query";
-import { getLoggedInUser } from "../../services/server/auth/getLoggedInUser";
+import { useQueryContext } from "../../utils/context/QueryContext";
 
-export default function AppBarComponent() {
-  const userQuery = useQuery({
-    queryKey: ["user"],
-    queryFn: () => getLoggedInUser(),
-  });
-
-  if (userQuery.isFetched) console.log(userQuery.data);
+const AppBarComponent = () => {
+  const { userQuery } = useQueryContext();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -130,12 +123,12 @@ export default function AppBarComponent() {
           <Box
             sx={{
               display: { xs: "none", md: "flex" },
-              justifyContent: "center", // Horizontally center content
-              alignItems: "center", // Vertically center content
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <Typography sx={{ paddingX: 1 }}>
-              {userQuery.data?.user?.name || "Please wait..."}
+              {userQuery.data?.user?.name} {userQuery.data?.user?.surname}
             </Typography>
 
             <IconButton
@@ -169,4 +162,6 @@ export default function AppBarComponent() {
       {renderMenu}
     </Box>
   );
-}
+};
+
+export default AppBarComponent;
