@@ -12,7 +12,7 @@ export const createCustomer = async (customer) => {
       role: customer.role,
     });
 
-    return res;
+    return res.data;
   } catch (error) {
     return error;
   }
