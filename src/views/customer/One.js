@@ -12,21 +12,22 @@ import { viewCustomer } from "../../services/server/customers/viewCustomer";
 import { Edit } from "@mui/icons-material";
 import Map from "../../components/maps/MapBoxGl";
 import SnackbarComponent from "../../components/feedback/SnackbarComponent";
+import { useQueryContext } from "../../utils/context/QueryContext";
 
 const One = () => {
-  const { id } = useParams();
-  const queryClient = useQueryClient();
-  const [customer, setCustomer] = useState([]);
+  const { useCustomerQuery, invalidateCustomersViewsQuery } = useQueryContext();
 
-  const customerQuery = useQuery({
-    queryKey: ["customers", id],
-    queryFn: () => getCustomer(id),
-  });
+  const { id } = useParams();
+
+  const customerQuery = useCustomerQuery(id);
+
+  if (customerQuery.data) console.log("Data", customerQuery.data);
 
   const customerViewMutation = useMutation({
     mutationFn: viewCustomer,
-    onSettled: (data, error) => {
-      console.log("Data", data);
+    onSuccess: (data) => {
+      const views = data.data.views;
+      invalidateCustomersViewsQuery(views);
     },
   });
 
@@ -44,9 +45,6 @@ const One = () => {
   useEffect(() => {
     customerViewMutation.mutateAsync(id);
   }, []);
-
-  if (customerQuery.isError)
-    console.log("Error", JSON.stringify(customerQuery.error));
 
   const onUpdateCustomer = (customer) => {
     const newDetails = customer.new;
@@ -75,7 +73,7 @@ const One = () => {
 
   return (
     <>
-      {customerQuery.isLoading && <FullscreenLoader />}
+      {useCustomerQuery(id).isLoading && <FullscreenLoader />}
 
       <Grid container spacing={2}>
         <Grid
@@ -122,7 +120,7 @@ const One = () => {
                 </Typography>
 
                 <Typography id="modal-modal-description" sx={{ fontSize: 13 }}>
-                  {customerQuery?.data?.email}
+                  {customerQuery.data?.email}
                 </Typography>
               </Box>
             </Box>
