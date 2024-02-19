@@ -14,6 +14,7 @@ import "@fontsource/roboto/700.css";
 // React query and its devtools
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { QueryProvider } from "./utils/context/QueryContext";
 
 const queryClient = new QueryClient();
 
@@ -22,8 +23,10 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App />
-      <ReactQueryDevtools />
+      <QueryProvider>
+        <App />
+        <ReactQueryDevtools />
+      </QueryProvider>
     </QueryClientProvider>
   </React.StrictMode>
 );
