@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import LoginPage from "../views/auth/Login";
 import HomePage from "../views/home/Main";
@@ -8,11 +8,32 @@ import CustomersListPage from "../views/customer/Main";
 import CustomerViewPage from "../views/customer/One";
 import BreadcrumbsComponent from "../components/navigation/BreadcrumbsComponent";
 import { useLocation } from "react-router-dom";
+import { useQueryContext } from "../utils/context/QueryContext";
+import { checkUser } from "../utils/middleware/checkUser";
+import { useNavigate } from "react-router-dom";
+import FullscreenLoader from "../components/FullscreenLoader";
 
 const RouteStack = () => {
-  console.log("Use Location:", useLocation());
+  const { setAuthChecked, authChecked } = useQueryContext();
+  const navigate = useNavigate();
 
-  return (
+  useEffect(() => {
+    const onCheckUser = async () => {
+      const isUser = await checkUser();
+
+      if (!isUser) {
+        setTimeout(() => {
+          navigate("/auth/login");
+        }, 5000);
+      }
+
+      setAuthChecked(true);
+    };
+
+    onCheckUser();
+  }, [navigate, setAuthChecked]);
+
+  return authChecked ? (
     <div style={{ paddingLeft: 30, paddingRight: 30 }}>
       <BreadcrumbsComponent />
 
@@ -24,6 +45,8 @@ const RouteStack = () => {
         <Route path="/customers/:id" element={<CustomerViewPage />} />
       </Routes>
     </div>
+  ) : (
+    <FullscreenLoader />
   );
 };
 
