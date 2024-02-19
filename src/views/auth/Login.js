@@ -93,8 +93,6 @@ export default function Login() {
       loading: false,
     }));
 
-    console.log("Login response", response);
-
     if (response.status !== 200) {
       setSnackbar((prev) => ({
         ...prev,
@@ -124,9 +122,17 @@ export default function Login() {
   };
 
   return (
-    <Container component="main" maxWidth="auto" sx={{ alignItems: "center" }}>
-      <CssBaseline />
-
+    <Container
+      component="main"
+      maxWidth="auto"
+      sx={{
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
       <Box
         sx={{
           marginTop: 1,
